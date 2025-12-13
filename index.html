@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log Glass</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+  <main class="app">
+    <header class="top">
+      <div>
+        <p class="eyebrow">ログを気持ちよく並べる</p>
+        <h1>Log Glass</h1>
+        <p class="lede">大カテゴリー / 小カテゴリー / ログをまとめて半透明カードに。日付と時間をつけて、見やすく整理。</p>
+      </div>
+      <div class="pill-stats" id="pillStats">
+        <span>カテゴリ: 0</span>
+        <span>ログ: 0</span>
+      </div>
+    </header>
+
+    <section class="panel glass">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">ログを追加</p>
+          <h2>Quick capture</h2>
+        </div>
+        <div class="chip soft">ローカル保存</div>
+      </div>
+      <form id="logForm" class="form-grid">
+        <label>
+          日付
+          <input type="date" id="date" required>
+        </label>
+        <label>
+          時間
+          <input type="time" id="time" required>
+        </label>
+        <label>
+          大カテゴリー
+          <input type="text" id="category" placeholder="例: 仕事 / ライフ" required>
+        </label>
+        <label>
+          小カテゴリー (任意)
+          <input type="text" id="subcategory" placeholder="空なら未分類に入るよ">
+        </label>
+        <label class="full">
+          タイトル
+          <textarea id="title" class="autosize" rows="1" placeholder="太文字で長めのタイトルもOK" required></textarea>
+        </label>
+        <label class="full">
+          メモ (任意)
+          <textarea id="note" class="autosize" rows="2" data-min-rows="2" placeholder="短いメモやリンクなど"></textarea>
+        </label>
+        <div class="form-actions">
+          <div class="edit-indicator hidden" id="editIndicator">
+            <span id="editLabel"></span>
+            <button type="button" id="cancelEdit" class="text-btn small">キャンセル</button>
+          </div>
+          <button type="submit" class="primary">追加</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel glass">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">一覧</p>
+          <h2>Category stacks</h2>
+        </div>
+        <div class="filters">
+          <input type="text" id="search" placeholder="タイトル / メモで検索">
+          <select id="dateFilter">
+            <option value="all">すべて</option>
+            <option value="today">今日</option>
+            <option value="week">今週</option>
+            <option value="month">今月</option>
+          </select>
+          <div class="settings">
+            <button type="button" id="settingsToggle" class="ghost">設定 ▾</button>
+            <div class="settings-menu hidden" id="settingsMenu">
+              <button type="button" id="demoFill" class="menu-item">デモデータを読み込む</button>
+              <button type="button" id="clearAll" class="menu-item danger">すべて消す</button>
+              <div class="menu-divider"></div>
+              <button type="button" id="exportJson" class="menu-item">JSON書き出し</button>
+              <button type="button" id="importJsonBtn" class="menu-item">JSON読み込み</button>
+            </div>
+          </div>
+          <div class="backup-info" id="backupInfo">最終バックアップ: なし</div>
+          <input type="file" id="importJsonFile" accept="application/json" hidden>
+        </div>
+      </div>
+      <div id="categories" class="category-grid"></div>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
