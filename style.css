@@ -251,7 +251,8 @@ label {
 }
 
 input,
-textarea {
+textarea,
+.rich-note {
   background: rgba(255, 255, 255, 0.06);
   color: var(--text);
   border: 1px solid var(--border);
@@ -263,7 +264,8 @@ textarea {
 }
 
 input:focus,
-textarea:focus {
+textarea:focus,
+.rich-note:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(125, 232, 255, 0.2);
 }
@@ -272,6 +274,45 @@ textarea:focus {
   overflow: hidden;
   resize: none;
   min-height: 48px;
+}
+
+.note-input {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.note-toolbar {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.note-toolbar button {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: var(--radius-small);
+  cursor: pointer;
+  min-width: 40px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.note-toolbar button:active {
+  transform: translateY(1px);
+}
+
+.rich-note {
+  min-height: 80px;
+  padding: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.rich-note:empty:before {
+  content: attr(data-placeholder);
+  color: var(--muted);
 }
 
 .full {

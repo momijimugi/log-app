@@ -47,11 +47,13 @@
         </label>
         <label>
           大カテゴリー
-          <input type="text" id="category" placeholder="例: 仕事 / ライフ" required>
+          <input type="text" id="category" placeholder="例: 仕事 / ライフ" list="categoryOptions" required>
+          <datalist id="categoryOptions"></datalist>
         </label>
         <label>
           小カテゴリー (任意)
-          <input type="text" id="subcategory" placeholder="空なら未分類に入るよ">
+          <input type="text" id="subcategory" placeholder="空なら未分類に入るよ" list="subcategoryOptions">
+          <datalist id="subcategoryOptions"></datalist>
         </label>
         <label class="full">
           タイトル
@@ -59,7 +61,14 @@
         </label>
         <label class="full">
           メモ (任意)
-          <textarea id="note" class="autosize" rows="2" data-min-rows="2" placeholder="短いメモやリンクなど"></textarea>
+          <div class="note-input">
+            <div class="note-toolbar" aria-label="メモ書式">
+              <button type="button" data-cmd="bold" title="太字">B</button>
+              <button type="button" data-cmd="formatBlock" data-value="h3" title="見出し">H</button>
+              <button type="button" data-cmd="insertUnorderedList" title="箇条書き">•</button>
+            </div>
+            <div id="noteRich" class="rich-note" contenteditable="true" data-placeholder="短いメモやリンクなど"></div>
+          </div>
         </label>
         <div class="form-actions">
           <div class="edit-indicator hidden" id="editIndicator">

@@ -16,6 +16,10 @@ const importFileInput = document.getElementById("importJsonFile");
 const settingsToggle = document.getElementById("settingsToggle");
 const settingsMenu = document.getElementById("settingsMenu");
 const backupInfoEl = document.getElementById("backupInfo");
+const categoryOptions = document.getElementById("categoryOptions");
+const subcategoryOptions = document.getElementById("subcategoryOptions");
+const noteEditor = document.getElementById("noteRich");
+const noteToolbar = document.querySelector(".note-toolbar");
 const editIndicator = document.getElementById("editIndicator");
 const editLabel = document.getElementById("editLabel");
 const cancelEditBtn = document.getElementById("cancelEdit");
@@ -115,7 +119,11 @@ function init() {
   });
   exportBtn.addEventListener("click", closeAllMenus);
   importBtn.addEventListener("click", closeAllMenus);
+  if (noteToolbar) {
+    noteToolbar.addEventListener("click", handleNoteCommand);
+  }
   window.addEventListener("keydown", handleKeySave);
+  window.addEventListener("keydown", handleShiftEnterSubmit);
   document.addEventListener("click", handleGlobalClick);
 }
 
@@ -149,6 +157,21 @@ function loadBackup() {
   }
 }
 
+function updateDatalists() {
+  if (!categoryOptions || !subcategoryOptions) return;
+  const cats = [...new Set(state.categories.map((c) => c.name).filter(Boolean))];
+  const subs = [
+    ...new Set(
+      state.categories
+        .flatMap((c) => c.subcategories || [])
+        .map((s) => s.name)
+        .filter(Boolean)
+    )
+  ];
+  categoryOptions.innerHTML = cats.map((c) => `<option value="${escapeHtml(c)}"></option>`).join("");
+  subcategoryOptions.innerHTML = subs.map((s) => `<option value="${escapeHtml(s)}"></option>`).join("");
+}
+
 function ensureIds() {
   state.categories.forEach((cat) => {
     cat.id = cat.id || uid();
@@ -179,7 +202,7 @@ function onSubmit(e) {
     date: dateInput.value,
     time: timeInput.value,
     title: document.getElementById("title").value.trim(),
-    note: document.getElementById("note").value.trim(),
+    noteHtml: sanitizeNote(noteEditor.innerHTML),
     createdAt: existing?.log?.createdAt || new Date().toISOString()
   };
   const catName = document.getElementById("category").value.trim();
@@ -197,6 +220,7 @@ function onSubmit(e) {
   form.reset();
   setDefaultDateTime();
   clearEditState();
+  resetNoteEditor();
   autosizeAll();
 }
 
@@ -224,6 +248,7 @@ function render() {
   const counts = countLogs();
   statsEl.innerHTML = `<span>カテゴリ: ${state.categories.length}</span><span>ログ: ${counts}</span>`;
   updateBackupInfo();
+  updateDatalists();
 
   const sortedCats = [...state.categories].sort((a, b) => totalLogs(b) - totalLogs(a));
   categoriesEl.innerHTML = "";
@@ -298,7 +323,7 @@ function render() {
       `;
         const noteEl = logEl.querySelector(".note");
         if (noteEl) {
-          const safeNote = escapeHtml(log.note || "").replace(/\r?\n/g, "<br>");
+          const safeNote = renderNoteHtml(log);
           noteEl.innerHTML = safeNote;
         }
         const menuToggle = logEl.querySelector(".menu-toggle");
@@ -346,7 +371,9 @@ function startEdit(log, cat, sub) {
   document.getElementById("category").value = cat.name;
   document.getElementById("subcategory").value = sub.name === DEFAULT_SUBCATEGORY ? "" : sub.name;
   document.getElementById("title").value = log.title;
-  document.getElementById("note").value = log.note || "";
+  if (noteEditor) {
+    noteEditor.innerHTML = renderNoteHtml(log, { forEdit: true });
+  }
   dateInput.value = log.date;
   timeInput.value = log.time;
   autosizeAll();
@@ -542,6 +569,54 @@ function formatDateTime(d) {
   return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+function renderNoteHtml(log, { forEdit = false } = {}) {
+  const raw = log.noteHtml || log.note || "";
+  if (!raw) return "";
+  if (log.noteHtml) {
+    return sanitizeNote(raw, { allowBr: true });
+  }
+  const escaped = escapeHtml(raw).replace(/\r?\n/g, "<br>");
+  return forEdit ? escaped : escaped;
+}
+
+function sanitizeNote(html, { allowBr = false } = {}) {
+  const temp = document.createElement("div");
+  temp.innerHTML = html || "";
+  const disallowed = ["script", "style", "iframe"];
+  temp.querySelectorAll(disallowed.join(",")).forEach((el) => el.remove());
+  const walker = document.createTreeWalker(temp, NodeFilter.SHOW_ELEMENT, null);
+  while (walker.nextNode()) {
+    const el = walker.currentNode;
+    [...el.attributes].forEach((attr) => {
+      if (attr.name.startsWith("on")) el.removeAttribute(attr.name);
+      if (["style"].includes(attr.name)) el.removeAttribute(attr.name);
+    });
+    if (!allowBr && el.tagName.toLowerCase() === "br") {
+      el.replaceWith(document.createTextNode("\n"));
+    }
+  }
+  return temp.innerHTML.trim();
+}
+
+function handleNoteCommand(e) {
+  const btn = e.target.closest("button[data-cmd]");
+  if (!btn) return;
+  const cmd = btn.dataset.cmd;
+  const value = btn.dataset.value || null;
+  if (cmd === "formatBlock" && value) {
+    document.execCommand("formatBlock", false, value);
+  } else {
+    document.execCommand(cmd, false, value);
+  }
+  noteEditor.focus();
+}
+
+function resetNoteEditor() {
+  if (noteEditor) {
+    noteEditor.innerHTML = "";
+  }
+}
+
 function markBackup() {
   const ts = new Date().toISOString();
   lastBackup = ts;
@@ -577,6 +652,13 @@ function handleKeySave(e) {
     e.preventDefault();
     exportJson();
     closeAllMenus();
+  }
+}
+
+function handleShiftEnterSubmit(e) {
+  if (e.shiftKey && e.key === "Enter") {
+    e.preventDefault();
+    form.requestSubmit();
   }
 }
 
