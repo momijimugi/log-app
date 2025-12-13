@@ -88,11 +88,23 @@
         </div>
         <div class="filters">
           <input type="text" id="search" placeholder="タイトル / メモで検索">
+          <select id="categoryFilter">
+            <option value="all">全カテゴリ</option>
+          </select>
+          <select id="subcategoryFilter">
+            <option value="all">全サブカテゴリ</option>
+          </select>
           <select id="dateFilter">
             <option value="all">すべて</option>
             <option value="today">今日</option>
             <option value="week">今週</option>
             <option value="month">今月</option>
+          </select>
+          <select id="sortOrder">
+            <option value="date_desc">新しい順</option>
+            <option value="date_asc">古い順</option>
+            <option value="title_asc">タイトルA→Z</option>
+            <option value="title_desc">タイトルZ→A</option>
           </select>
           <div class="settings">
             <button type="button" id="settingsToggle" class="ghost">設定 ▾</button>

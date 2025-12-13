@@ -7,7 +7,10 @@ const statsEl = document.getElementById("pillStats");
 const dateInput = document.getElementById("date");
 const timeInput = document.getElementById("time");
 const searchInput = document.getElementById("search");
+const categoryFilterSelect = document.getElementById("categoryFilter");
+const subcategoryFilterSelect = document.getElementById("subcategoryFilter");
 const dateFilterSelect = document.getElementById("dateFilter");
+const sortOrderSelect = document.getElementById("sortOrder");
 const demoBtn = document.getElementById("demoFill");
 const clearBtn = document.getElementById("clearAll");
 const exportBtn = document.getElementById("exportJson");
@@ -89,7 +92,10 @@ function init() {
   render();
   form.addEventListener("submit", onSubmit);
   searchInput.addEventListener("input", render);
+  categoryFilterSelect.addEventListener("change", render);
+  subcategoryFilterSelect.addEventListener("change", render);
   dateFilterSelect.addEventListener("change", render);
+  sortOrderSelect.addEventListener("change", render);
   exportBtn.addEventListener("click", exportJson);
   importBtn.addEventListener("click", () => importFileInput.click());
   importFileInput.addEventListener("change", handleImportFile);
@@ -244,11 +250,15 @@ function ensureSubcategory(catName, subName) {
 function render() {
   const searchTerm = searchInput.value.trim().toLowerCase();
   const dateFilter = dateFilterSelect.value;
+  const catFilter = categoryFilterSelect.value;
+  const subFilter = subcategoryFilterSelect.value;
+  const sortOrder = sortOrderSelect.value;
 
   const counts = countLogs();
   statsEl.innerHTML = `<span>カテゴリ: ${state.categories.length}</span><span>ログ: ${counts}</span>`;
   updateBackupInfo();
   updateDatalists();
+  updateFilterOptions();
 
   const sortedCats = [...state.categories].sort((a, b) => totalLogs(b) - totalLogs(a));
   categoriesEl.innerHTML = "";
@@ -256,11 +266,13 @@ function render() {
   let rendered = 0;
   sortedCats.forEach((cat) => {
     const catTotal = totalLogs(cat);
+    if (catFilter !== "all" && catFilter !== cat.name) return;
     const subFiltered = cat.subcategories.map((sub) => {
+      if (subFilter !== "all" && sub.name !== subFilter) return { ...sub, logs: [] };
       const logs = sub.logs
         .filter((log) => matchesSearch(log, searchTerm))
         .filter((log) => matchesDate(log, dateFilter))
-        .sort((a, b) => toDate(b.date, b.time) - toDate(a.date, a.time));
+        .sort((a, b) => sortLogs(a, b, sortOrder));
       return { ...sub, logs };
     });
 
@@ -509,6 +521,13 @@ function color(name, opacity = 0.8) {
   return `hsla(${hue}, 80%, 70%, ${opacity})`;
 }
 
+function sortLogs(a, b, order) {
+  if (order === "date_asc") return toDate(a.date, a.time) - toDate(b.date, b.time);
+  if (order === "title_asc") return a.title.localeCompare(b.title, "ja");
+  if (order === "title_desc") return b.title.localeCompare(a.title, "ja");
+  return toDate(b.date, b.time) - toDate(a.date, a.time);
+}
+
 function same(a, b) {
   return (a || "").trim().toLowerCase() === (b || "").trim().toLowerCase();
 }
@@ -645,6 +664,25 @@ function updateBackupInfo() {
   const isOld = ageDays > 1;
   backupInfoEl.textContent = `最終バックアップ: ${formatDateTime(dt)}`;
   backupInfoEl.classList.toggle("old", isOld);
+}
+
+function updateFilterOptions() {
+  if (!categoryFilterSelect || !subcategoryFilterSelect) return;
+  const cats = [...new Set(state.categories.map((c) => c.name).filter(Boolean))];
+  const subs = [
+    ...new Set(
+      state.categories
+        .flatMap((c) => c.subcategories || [])
+        .map((s) => s.name)
+        .filter(Boolean)
+    )
+  ];
+  const catValue = categoryFilterSelect.value;
+  const subValue = subcategoryFilterSelect.value;
+  categoryFilterSelect.innerHTML = `<option value="all">全カテゴリ</option>` + cats.map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+  subcategoryFilterSelect.innerHTML = `<option value="all">全サブカテゴリ</option>` + subs.map((s) => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("");
+  if (cats.includes(catValue)) categoryFilterSelect.value = catValue;
+  if (subs.includes(subValue)) subcategoryFilterSelect.value = subValue;
 }
 
 function handleKeySave(e) {
