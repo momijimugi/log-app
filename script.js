@@ -308,6 +308,7 @@ function render() {
       sub.logs.forEach((log) => {
         const logEl = document.createElement("div");
         logEl.className = "log";
+        const noteExists = hasNote(log);
         logEl.innerHTML = `
           <header>
             <div class="log-top">
@@ -315,7 +316,7 @@ function render() {
               <time>${formatDate(log.date)} / ${log.time}</time>
             </div>
             <div class="log-actions">
-              ${log.note ? `<button class="mini ghost note-toggle" aria-label="メモ表示" title="メモ表示">👀</button>` : ""}
+              ${noteExists ? `<button class="mini ghost note-toggle" aria-label="メモ表示" title="メモ表示">👀</button>` : ""}
               <div class="log-menu-wrap">
                 <button class="mini ghost icon-btn menu-toggle" aria-label="メニュー">⋯</button>
                 <div class="log-menu hidden">
@@ -326,7 +327,7 @@ function render() {
             </div>
           </header>
           <p class="log-title">${escapeHtml(log.title)}</p>
-          ${log.note ? `<div class="note hidden"></div>` : ""}
+          ${noteExists ? `<div class="note hidden"></div>` : ""}
           <div class="meta">
             <span class="pill">${sub.name}</span>
             <span class="pill">${cat.name}</span>
@@ -334,7 +335,7 @@ function render() {
         </div>
       `;
         const noteEl = logEl.querySelector(".note");
-        if (noteEl) {
+        if (noteExists && noteEl) {
           const safeNote = renderNoteHtml(log);
           noteEl.innerHTML = safeNote;
         }
@@ -455,9 +456,10 @@ function handleImportFile(evt) {
 
 function matchesSearch(log, term) {
   if (!term) return true;
+  const noteText = getNoteText(log).toLowerCase();
   return (
     log.title.toLowerCase().includes(term) ||
-    (log.note && log.note.toLowerCase().includes(term))
+    noteText.includes(term)
   );
 }
 
@@ -596,6 +598,18 @@ function renderNoteHtml(log, { forEdit = false } = {}) {
   }
   const escaped = escapeHtml(raw).replace(/\r?\n/g, "<br>");
   return forEdit ? escaped : escaped;
+}
+
+function getNoteText(log) {
+  if (!log) return "";
+  const raw = log.noteHtml ? sanitizeNote(log.noteHtml, { allowBr: true }) : log.note || "";
+  const temp = document.createElement("div");
+  temp.innerHTML = raw;
+  return temp.textContent || "";
+}
+
+function hasNote(log) {
+  return getNoteText(log).trim().length > 0;
 }
 
 function sanitizeNote(html, { allowBr = false } = {}) {

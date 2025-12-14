@@ -552,6 +552,34 @@ summary::-webkit-details-marker {
   white-space: pre-wrap;
 }
 
+.note h1,
+.note h2,
+.note h3,
+.rich-note h1,
+.rich-note h2,
+.rich-note h3 {
+  font-size: 14px;
+  margin: 0 0 4px;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
+.note p,
+.rich-note p {
+  margin: 0 0 6px;
+}
+
+.note ul,
+.rich-note ul {
+  margin: 4px 0 6px 18px;
+  padding: 0;
+}
+
+.note > :last-child,
+.rich-note > :last-child {
+  margin-bottom: 0;
+}
+
 .hidden {
   display: none;
 }
