@@ -315,6 +315,15 @@ function render() {
               <span class="dot" style="background:${color(cat.name)}; box-shadow: 0 0 0 4px ${color(cat.name, 0.2)}"></span>
               <time>${formatDate(log.date)} / ${log.time}</time>
             </div>
+          </header>
+          <p class="log-title">${escapeHtml(log.title)}</p>
+          ${noteExists ? `<div class="note hidden"></div>` : ""}
+          <div class="meta-row">
+            <div class="meta">
+              <span class="pill">${sub.name}</span>
+              <span class="pill">${cat.name}</span>
+              <span class="pill">${timeAgo(log.date, log.time)}</span>
+            </div>
             <div class="log-actions">
               ${noteExists ? `<button class="mini ghost note-toggle" aria-label="メモ表示" title="メモ表示">👀</button>` : ""}
               <div class="log-menu-wrap">
@@ -325,14 +334,7 @@ function render() {
                 </div>
               </div>
             </div>
-          </header>
-          <p class="log-title">${escapeHtml(log.title)}</p>
-          ${noteExists ? `<div class="note hidden"></div>` : ""}
-          <div class="meta">
-            <span class="pill">${sub.name}</span>
-            <span class="pill">${cat.name}</span>
-            <span class="pill">${timeAgo(log.date, log.time)}</span>
-        </div>
+          </div>
       `;
         const noteEl = logEl.querySelector(".note");
         if (noteExists && noteEl) {
