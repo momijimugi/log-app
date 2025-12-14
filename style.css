@@ -469,9 +469,10 @@ summary::-webkit-details-marker {
 
 .logs {
   margin-top: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  align-items: start;
 }
 
 .log {
@@ -479,6 +480,10 @@ summary::-webkit-details-marker {
   border-radius: var(--radius-small);
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.03);
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  -moz-column-break-inside: avoid;
+  width: 100%;
 }
 
 .log header {
@@ -657,5 +662,9 @@ summary::-webkit-details-marker {
 
   .pill-stats {
     align-self: flex-start;
+  }
+  .logs {
+    grid-template-columns: 1fr;
+    gap: 8px;
   }
 }
