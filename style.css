@@ -383,13 +383,15 @@ button:active {
 
 .category-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 12px;
 }
 
-@media (min-width: 1400px) {
+/* レスポンシブ: 狭い画面は1カラムに戻す */
+@media (max-width: 900px) {
   .category-grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
 }
 
@@ -475,6 +477,20 @@ summary::-webkit-details-marker {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   align-items: start;
+}
+
+/* 強制: どこから上書きされても2カラムにする */
+.logs {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  grid-auto-flow: row !important;
+  grid-auto-columns: 1fr !important;
+  column-gap: 12px !important;
+  row-gap: 12px !important;
+}
+
+.logs > * {
+  min-width: 0; /* 子要素のはみ出しを防ぐ */
 }
 
 .log {
