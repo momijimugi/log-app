@@ -469,28 +469,21 @@ summary::-webkit-details-marker {
   display: none;
 }
 
-.logs,
-.category-card .logs,
-#categories .logs {
+.logs {
   margin-top: 6px;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  align-items: start;
 }
 
-/* 強制: どこから上書きされても2カラムにする */
-.logs {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  grid-auto-flow: row !important;
-  grid-auto-columns: 1fr !important;
-  column-gap: 12px !important;
-  row-gap: 12px !important;
+/* 各サブカテゴリ内のログは縦並び（1カラム）にする */
+.category-card .logs,
+#categories .logs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
 }
 
 .logs > * {
-  min-width: 0; /* 子要素のはみ出しを防ぐ */
+  min-width: 0;
 }
 
 .log {
