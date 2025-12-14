@@ -522,7 +522,8 @@ function timeAgo(dateStr, timeStr) {
 
 function color(name, opacity = 0.8) {
   const hue = name.split("").reduce((sum, char, idx) => sum + char.charCodeAt(0) * (idx + 3), 0) % 360;
-  return `hsla(${hue}, 80%, 70%, ${opacity})`;
+  // より明るく控えめな水色寄りの色合いに調整（彩度高め・明度やや高め）
+  return `hsla(${hue}, 90%, 65%, ${opacity})`;
 }
 
 function sortLogs(a, b, order) {
